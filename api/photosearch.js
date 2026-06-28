@@ -1,4 +1,7 @@
 const Tesseract = require("tesseract.js");
+const fs = require("fs");
+const path = require("path");
+const zlib = require("zlib");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -16,9 +19,25 @@ module.exports = async (req, res) => {
     const base64 = image.replace(/^data:image\/\w+;base64,/, "");
     const buffer = Buffer.from(base64, "base64");
 
-    const result = await Tesseract.recognize(buffer, "tur", {
-      logger: () => {},
-    });
+    // ensure Turkish traineddata is extracted once, then reuse it from /tmp
+    const langDir = "/tmp/tesseract-lang";
+    const trainedPath = path.join(langDir, "tur.traineddata");
+
+    if (!fs.existsSync(trainedPath)) {
+      fs.mkdirSync(langDir, { recursive: true });
+      const gz = fs.readFileSync(path.join(__dirname, "tessdata", "tur.traineddata.gz"));
+      const out = zlib.gunzipSync(gz);
+      fs.writeFileSync(trainedPath, out);
+    }
+
+    const result = await Tesseract.recognize(
+      buffer,
+      "tur",
+      {
+        langPath: langDir,
+        logger: () => {},
+      }
+    );
 
     const text = (result?.data?.text || "").trim();
 

@@ -175,22 +175,42 @@
       }
     }
 
+    async function resizeImage(file, maxDim) {
+      const bitmap = await createImageBitmap(file);
+      let w = bitmap.width;
+      let h = bitmap.height;
+      if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const canvas = new OffscreenCanvas(w, h);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.85 });
+      return blob;
+    }
+
     async function searchPhoto(file) {
       setStatus("Fotoğraf yükleniyor ve tanınıyor…");
       resultsSection.style.display = "none";
 
       try {
+        const processed = await resizeImage(file, 1200);
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => resolve(reader.result);
           reader.onerror = reject;
-          reader.readAsDataURL(file);
+          reader.readAsDataURL(processed);
         });
+
+        setStatus("Görsel analiz ediliyor…");
 
         const response = await fetch("/api/photosearch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: base64 }),
+          // 60s timeout on Vercel Hobby is 10s; Hobby+ is 300s
         });
 
         if (!response.ok) {
