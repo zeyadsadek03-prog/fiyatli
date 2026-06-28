@@ -8,21 +8,9 @@
 </head>
 <body>
   <div class="container">
-    <header>
-      <div class="header-inner">
-        <div class="brand">
-          <div class="brand-icon">₺</div>
-          <h1>Fiyatlı<span id="rotate-word"></span></h1>
-        </div>
-        <div class="header-meta">
-          <span class="a101-pill">A101</span>
-          <span class="header-subtitle">fiyat karşılaştırma</span>
-        </div>
-      </div>
-    </header>
-
     <main>
       <section class="search-section">
+        <h1 class="app-title">Fiyatlı<span id="rotate-word"></span></h1>
         <form id="search-form" class="search-box" autocomplete="off">
           <input
             type="text"
@@ -53,19 +41,6 @@
           </div>
           <div id="results-list" class="results-list"></div>
         </section>
-
-        <div id="idle-state" class="idle-state" style="display:none;">
-          <div class="idle-icon">🔍</div>
-          <p class="idle-title">Fiyatı hemen bul</p>
-          <p class="idle-desc">A101 ürünlerini isimle arayın ya da ürün fotoğrafı yükleyin.</p>
-          <div class="idle-chips">
-            <span class="idle-chip">Süt</span>
-            <span class="idle-chip">Ekmek</span>
-            <span class="idle-chip">Çikolata</span>
-            <span class="idle-chip">Deterjan</span>
-            <span class="idle-chip">Meyve Suyu</span>
-          </div>
-        </div>
 
         <div id="loading-state" class="results-list" style="display:none;">
           <div class="skeleton-card">
@@ -116,11 +91,6 @@
       </section>
     </main>
 
-    <div class="footer-hint">
-      <div class="footer-dot"></div>
-      <p class="footer-text">Türkiye A101 mağazaları fiyatları</p>
-      <div class="footer-dot"></div>
-    </div>
   </div>
 
   <script src="app.js"></script>
