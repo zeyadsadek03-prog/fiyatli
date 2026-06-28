@@ -210,6 +210,8 @@ async function runPhotoSearch(file) {
     const result = await Tesseract.recognize(file, "tur");
     const rawText = (result?.data?.text || "").trim();
 
+    console.log("Tesseract raw OCR text:", rawText);
+
     if (!rawText) {
       errorText.textContent = "Fotoğraftan metin okunamadı.";
       show(errorBox);
@@ -217,31 +219,38 @@ async function runPhotoSearch(file) {
       return;
     }
 
-    setPhotoStatus("Ürün adı bulunuyor...");
+    let cleaned = "";
+    try {
+      setPhotoStatus("Ürün adı bulunuyor...");
 
-    const groqRes = await fetch("/api/groq", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: rawText }),
-    });
+      const groqRes = await fetch("/api/groq", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: rawText }),
+      });
 
-    if (!groqRes.ok) {
-      const errText = await groqRes.text();
-      throw new Error(`Groq API ${groqRes.status}: ${errText}`);
+      console.log("Groq response status:", groqRes.status);
+
+      if (!groqRes.ok) {
+        const errText = await groqRes.text();
+        console.error("Groq API non-OK:", groqRes.status, errText);
+      } else {
+        const groqData = await groqRes.json();
+        console.log("Groq response data:", groqData);
+        cleaned = (groqData.cleaned || "").trim();
+      }
+    } catch (groqErr) {
+      console.error("Groq request failed:", groqErr);
     }
-
-    const groqData = await groqRes.json();
-    const cleaned = (groqData.cleaned || "").trim();
 
     if (!cleaned) {
-      errorText.textContent = "Ürün adı çıkarılamadı.";
-      show(errorBox);
-      setPhotoStatus("");
-      return;
+      console.log("Using raw Tesseract text as fallback");
+      cleaned = rawText;
     }
 
+    console.log("Final search query:", cleaned);
     queryInput.value = cleaned;
     setPhotoStatus("");
     await searchText(cleaned);

@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
         messages: [
           {
             role: "user",
-            content: `Extract only the product name from this OCR text. Return just the product name, nothing else: ${text}`,
+            content: `You are a product name extractor. The user photographed a product. Extract the brand and product name from this OCR text and return ONLY the search-friendly product name in Turkish or as-is. If you see any brand or product words at all, return them. OCR text: ${text}`,
           },
         ],
         temperature: 0,
