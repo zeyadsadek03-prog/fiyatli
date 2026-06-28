@@ -245,9 +245,20 @@ async function runPhotoSearch(file) {
       console.error("Groq request failed:", groqErr);
     }
 
-    if (!cleaned) {
-      console.log("Using raw Tesseract text as fallback");
+    const rejectionWords = ["unable", "cannot", "sorry", "incomplete", "however", "provide"];
+    const looksInvalid = rejectionWords.some((word) =>
+      cleaned.toLowerCase().includes(word)
+    );
+    if (looksInvalid) {
+      console.log("Groq output rejected as invalid, using raw OCR text");
       cleaned = rawText;
+    }
+
+    if (!cleaned) {
+      errorText.textContent = "Ürün okunamadı, lütfen daha net bir fotoğraf deneyin.";
+      show(errorBox);
+      setPhotoStatus("");
+      return;
     }
 
     console.log("Final search query:", cleaned);
