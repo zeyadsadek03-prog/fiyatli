@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fiyatlı — A101 Fiyat Sorgulama</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Fiyatlı</h1>
       <p class="subtitle">A101 ürün fiyatlarını saniyelerde sorgula</p>
+      <p id="typed-output"></p>
     </header>
 
     <main>
@@ -63,5 +65,16 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      new Typed("#typed-output", {
+        strings: ["Ucuz fiyatlar ✓", "Hızlı arama ✓", "A101 fiyatları ✓"],
+        typeSpeed: 60,
+        backSpeed: 40,
+        loop: true,
+        backDelay: 1500,
+      });
+    });
+  </script>
 </body>
 </html>
