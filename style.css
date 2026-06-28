@@ -183,6 +183,23 @@ button[type="submit"]:active {
   color: #dc2626;
 }
 
+.load-more-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: #fff;
+  color: #00B341;
+  border: 1px solid #00B341;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.load-more-btn:active {
+  transform: scale(0.98);
+}
+
 footer {
   text-align: center;
   margin-top: 32px;

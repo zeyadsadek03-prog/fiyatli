@@ -9,6 +9,10 @@ const errorText = document.getElementById("error-text");
 const photoBtn = document.getElementById("photo-search-btn");
 const photoInput = document.getElementById("photo-input");
 const photoStatus = document.getElementById("photo-status");
+const loadMoreBtn = document.getElementById("load-more-btn");
+
+let allResults = [];
+let showingAll = false;
 
 function show(section) {
   [resultsSection, noResultsSection, errorBox].forEach((el) => {
@@ -178,9 +182,19 @@ async function searchText(query) {
     }
     const items = filterDedupAndLimit(products, query);
     if (items.length === 0) {
+      allResults = [];
+      showingAll = false;
+      loadMoreBtn.style.display = "none";
       show(noResultsSection);
     } else {
-      renderResults(items);
+      allResults = items;
+      showingAll = false;
+      renderResults(allResults.slice(0, 3));
+      if (allResults.length > 3) {
+        loadMoreBtn.style.display = "block";
+      } else {
+        loadMoreBtn.style.display = "none";
+      }
       show(resultsSection);
     }
   } catch (err) {
@@ -259,4 +273,12 @@ photoInput.addEventListener("change", (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
   runPhotoSearch(file);
+});
+
+loadMoreBtn.addEventListener("click", () => {
+  if (!showingAll && allResults.length > 3) {
+    showingAll = true;
+    renderResults(allResults);
+    loadMoreBtn.style.display = "none";
+  }
 });
