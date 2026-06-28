@@ -252,6 +252,12 @@ loadMoreBtn.addEventListener("click", () => {
   if (!showingAll && allResults.length > 3) {
     showingAll = true;
     renderResults(allResults);
-    loadMoreBtn.style.display = "none";
+    loadMoreBtn.textContent = "Daha az göster";
+    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else if (showingAll && allResults.length > 3) {
+    showingAll = false;
+    renderResults(allResults.slice(0, 3));
+    loadMoreBtn.textContent = "Daha fazla göster";
+    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 });
