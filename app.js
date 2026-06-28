@@ -261,3 +261,61 @@ loadMoreBtn.addEventListener("click", () => {
     resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 });
+
+/* Rotating word animation */
+(function () {
+  const rotatingEl = document.getElementById("rotating-word");
+  if (!rotatingEl) return;
+
+  const words = ["sorgula", "öğren", "karşılaştır", "bul"];
+  let wordIndex = 0;
+  let timeouts = [];
+
+  function clearScheduled() {
+    timeouts.forEach((t) => clearTimeout(t));
+    timeouts = [];
+  }
+
+  function scheduleNext() {
+    const t = setTimeout(rotate, 2500);
+    timeouts.push(t);
+  }
+
+  function renderChars(word) {
+    rotatingEl.innerHTML = "";
+    return Array.from(word).map((char) => {
+      const wrapper = document.createElement("span");
+      wrapper.className = "char-wrapper";
+
+      const span = document.createElement("span");
+      span.className = "char";
+      span.textContent = char;
+
+      wrapper.appendChild(span);
+      rotatingEl.appendChild(wrapper);
+      return span;
+    });
+  }
+
+  function rotate() {
+    const currentWord = words[wordIndex];
+    const chars = renderChars(currentWord);
+    wordIndex = (wordIndex + 1) % words.length;
+
+    chars.forEach((char, i) => {
+      const t = setTimeout(() => {
+        char.style.animation = `charIn 0.3s forwards`;
+      }, i * 30);
+      timeouts.push(t);
+    });
+
+    const outT = setTimeout(() => {
+      chars.forEach((char) => {
+        char.style.animation = `charOut 0.3s forwards`;
+      });
+    }, 2500 - 300);
+    timeouts.push(outT);
+  }
+
+  scheduleNext();
+})();

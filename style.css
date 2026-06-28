@@ -37,6 +37,45 @@ header h1 {
   margin-top: 4px;
 }
 
+#rotating-word {
+  display: inline-block;
+  position: relative;
+  vertical-align: bottom;
+}
+
+.char-wrapper {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.char {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+@keyframes charIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes charOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+}
+
 .search-box {
   display: flex;
   gap: 8px;
