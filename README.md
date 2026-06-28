@@ -1,3 +1,2 @@
 # Fiyatlı
-
-A101 ürün fiyat sorgulama uygulaması.
+https://fiyatli.vercel.app/
