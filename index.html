@@ -9,41 +9,101 @@
 <body>
   <div class="container">
     <header>
-      <h1>Fiyatlı<span id="rotate-word"></span></h1>
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-icon">₺</div>
+          <h1>Fiyatlı<span id="rotate-word"></span></h1>
+        </div>
+        <div class="header-meta">
+          <span class="a101-pill">A101</span>
+          <span class="header-subtitle">fiyat karşılaştırma</span>
+        </div>
+      </div>
     </header>
 
     <main>
       <section class="search-section">
-        <form id="search-form" class="search-box">
+        <form id="search-form" class="search-box" autocomplete="off">
           <input
             type="text"
             id="query"
-            placeholder="Ürün adı gir (örn: süt, ekmek, domates)..."
+            placeholder="Ürün adı veya barkod ara..."
             required
-            autocomplete="off"
           />
           <button type="submit">Ara</button>
         </form>
 
         <button id="photo-search-btn" class="photo-search-btn" type="button">
-          📷 Fotoğraf ile ara
+          📷 Fotoğrafla ara
         </button>
         <input
           type="file"
           id="photo-input"
           accept="image/*"
+          capture="environment"
           style="display:none;"
         />
 
         <div id="photo-status" class="status" style="display:none;"></div>
 
         <section id="results" class="results" style="display:none;">
-          <h2>Sonuçlar</h2>
+          <div class="results-header">
+            <h2 id="results-count"></h2>
+            <span class="a101-badge">A101</span>
+          </div>
           <div id="results-list" class="results-list"></div>
         </section>
 
-        <div id="no-results" class="no-results" style="display:none;">
-          <p>Bu ürün A101'de bulunamadı 🚫</p>
+        <div id="idle-state" class="idle-state" style="display:none;">
+          <div class="idle-icon">🔍</div>
+          <p class="idle-title">Fiyatı hemen bul</p>
+          <p class="idle-desc">A101 ürünlerini isimle arayın ya da ürün fotoğrafı yükleyin.</p>
+          <div class="idle-chips">
+            <span class="idle-chip">Süt</span>
+            <span class="idle-chip">Ekmek</span>
+            <span class="idle-chip">Çikolata</span>
+            <span class="idle-chip">Deterjan</span>
+            <span class="idle-chip">Meyve Suyu</span>
+          </div>
+        </div>
+
+        <div id="loading-state" class="results-list" style="display:none;">
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div>
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line medium" style="margin-top:6px;"></div>
+              </div>
+              <div class="skeleton-price"></div>
+            </div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div>
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line medium" style="margin-top:6px;"></div>
+              </div>
+              <div class="skeleton-price"></div>
+            </div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-body">
+              <div>
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line medium" style="margin-top:6px;"></div>
+              </div>
+              <div class="skeleton-price"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="empty-state" class="no-results" style="display:none;">
+          <div class="no-results-icon">🔍</div>
+          <p class="no-results-title">Sonuç bulunamadı</p>
+          <p class="no-results-msg"></p>
         </div>
 
         <button id="load-more-btn" class="load-more-btn" type="button" style="display:none;">
@@ -56,9 +116,11 @@
       </section>
     </main>
 
-    <footer>
-      <p>Fiyatlı · Veriler a101.com.tr'den çekilir</p>
-    </footer>
+    <div class="footer-hint">
+      <div class="footer-dot"></div>
+      <p class="footer-text">Türkiye A101 mağazaları fiyatları</p>
+      <div class="footer-dot"></div>
+    </div>
   </div>
 
   <script src="app.js"></script>
