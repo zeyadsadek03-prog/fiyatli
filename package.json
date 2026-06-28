@@ -1,7 +1,0 @@
-{
-  "name": "fiyatli",
-  "private": true,
-  "dependencies": {
-    "tesseract.js": "^2.1.0"
-  }
-}

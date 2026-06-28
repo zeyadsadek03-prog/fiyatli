@@ -1,1 +1,3 @@
-https://fiyatli-k23a7qjee-zeyad4.vercel.app/
+# Fiyatlı
+
+A101 ürün fiyat sorgulama uygulaması.
