@@ -154,22 +154,6 @@ button[type="submit"]:active {
   font-weight: 700;
   color: #00B341;
   margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.price-original {
-  color: #9ca3af;
-  font-weight: 500;
-  text-decoration: line-through;
-  font-size: 14px;
-}
-
-.price-discounted {
-  color: #00B341;
-  font-weight: 700;
 }
 
 .no-results, .error-box {

@@ -99,32 +99,12 @@ function renderResults(items) {
 
     const price = document.createElement("p");
     price.className = "result-price";
-
     const priceStr =
       item.price_str ||
       item.attributes?.price_str ||
       item.attributes?.priceText ||
       "";
-    const discountedPriceStr =
-      item.discounted_price_str ||
-      item.attributes?.discounted_price_str ||
-      item.attributes?.discountedText ||
-      "";
-    const hasDiscount =
-      item.discounted_price != null ||
-      item.attributes?.discounted_price != null ||
-      Boolean(discountedPriceStr);
-
-    if (hasDiscount && discountedPriceStr) {
-      const original = document.createElement("span");
-      original.className = "price-original";
-      original.textContent = priceStr || "";
-      const discounted = document.createElement("span");
-      discounted.className = "price-discounted";
-      discounted.textContent = discountedPriceStr;
-      price.appendChild(original);
-      price.appendChild(discounted);
-    } else if (priceStr) {
+    if (priceStr) {
       price.textContent = priceStr;
     }
 
