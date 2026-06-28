@@ -203,30 +203,34 @@ function setPhotoStatus(message) {
 }
 
 async function runPhotoSearch(file) {
-  setPhotoStatus("Fotoğraf okunuyor...");
+  setPhotoStatus("Fotoğraf analiz ediliyor...");
   resultsSection.style.display = "none";
 
   try {
-    const result = await Tesseract.recognize(file, "tur");
-    const rawText = (result?.data?.text || "").trim();
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-    console.log("Tesseract raw OCR text:", rawText);
+    const groqRes = await fetch("/api/vision", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ image: base64 }),
+    });
 
-    if (!rawText) {
-      errorText.textContent = "Ürün okunamadı, lütfen daha net bir fotoğraf deneyin.";
-      show(errorBox);
-      setPhotoStatus("");
-      return;
+    if (!groqRes.ok) {
+      const errText = await groqRes.text();
+      throw new Error(`Vision API ${groqRes.status}: ${errText}`);
     }
 
-    const cleaned = rawText
-      .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ0-9 ]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .split(" ")
-      .slice(0, 4)
-      .join(" ");
+    const groqData = await groqRes.json();
+    const cleaned = (groqData.text || "").trim();
 
+    console.log("Vision raw response:", groqData);
     console.log("Cleaned search text:", cleaned);
 
     if (!cleaned) {
