@@ -72,7 +72,6 @@ function renderResults(items) {
 
 async function searchText(query) {
   setStatus("Aranıyor…");
-  show({ style: { display: "none" } });
   resultsSection.style.display = "none";
 
   try {
@@ -105,15 +104,18 @@ async function searchText(query) {
 
 async function searchPhoto(file) {
   setStatus("Fotoğraf tanınıyor…");
+  resultsSection.style.display = "none";
 
   try {
-    const worker = await Tesseract.createWorker("tur");
+    const worker = await Tesseract.createWorker("tur", 1, {
+      langPath: "https://cdn.jsdelivr.net/npm/tesseract.js@v2.1.0/lib/tessdata/",
+    });
     const { data } = await worker.recognize(file);
     const text = (data.text || "").trim();
     await worker.terminate();
 
     if (!text) {
-      errorText.textContent = "Fotoğraftan metin okunamadı.";
+      errorText.textContent = "Fotoğraftan metin okunamadı. Daha net bir fotoğraf deneyin.";
       show(errorBox);
       setStatus("");
       return;
@@ -121,8 +123,8 @@ async function searchPhoto(file) {
 
     await searchText(text);
   } catch (err) {
-    console.error(err);
-    errorText.textContent = "Fotoğraf ile arama başarısız oldu.";
+    console.error("OCR error:", err);
+    errorText.textContent = "Fotoğraf ile arama başarısız oldu. Lütfen tekrar deneyin.";
     show(errorBox);
     setStatus("");
   }
