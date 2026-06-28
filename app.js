@@ -213,46 +213,21 @@ async function runPhotoSearch(file) {
     console.log("Tesseract raw OCR text:", rawText);
 
     if (!rawText) {
-      errorText.textContent = "Fotoğraftan metin okunamadı.";
+      errorText.textContent = "Ürün okunamadı, lütfen daha net bir fotoğraf deneyin.";
       show(errorBox);
       setPhotoStatus("");
       return;
     }
 
-    let cleaned = "";
-    try {
-      setPhotoStatus("Ürün adı bulunuyor...");
+    const cleaned = rawText
+      .replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ0-9 ]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .split(" ")
+      .slice(0, 4)
+      .join(" ");
 
-      const groqRes = await fetch("/api/groq", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: rawText }),
-      });
-
-      console.log("Groq response status:", groqRes.status);
-
-      if (!groqRes.ok) {
-        const errText = await groqRes.text();
-        console.error("Groq API non-OK:", groqRes.status, errText);
-      } else {
-        const groqData = await groqRes.json();
-        console.log("Groq response data:", groqData);
-        cleaned = (groqData.cleaned || "").trim();
-      }
-    } catch (groqErr) {
-      console.error("Groq request failed:", groqErr);
-    }
-
-    const rejectionWords = ["unable", "cannot", "sorry", "incomplete", "however", "provide"];
-    const looksInvalid = rejectionWords.some((word) =>
-      cleaned.toLowerCase().includes(word)
-    );
-    if (looksInvalid) {
-      console.log("Groq output rejected as invalid, using raw OCR text");
-      cleaned = rawText;
-    }
+    console.log("Cleaned search text:", cleaned);
 
     if (!cleaned) {
       errorText.textContent = "Ürün okunamadı, lütfen daha net bir fotoğraf deneyin.";
@@ -261,7 +236,6 @@ async function runPhotoSearch(file) {
       return;
     }
 
-    console.log("Final search query:", cleaned);
     queryInput.value = cleaned;
     setPhotoStatus("");
     await searchText(cleaned);
