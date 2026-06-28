@@ -49,26 +49,37 @@ function filterDedupAndLimit(items, query) {
     .filter(Boolean)
     .map((w) => normalizeTurkish(w));
 
+  const requiredWords = queries.slice(0, 2);
+  const preferredWord = queries[0];
+
   const seen = new Set();
-  const out = [];
+  const matched = [];
 
   for (const item of items) {
     const name = item.name || item.attributes?.name || "";
     const normalizedName = normalizeTurkish(name);
 
-    // Must match at least one query word
-    const matches = queries.some((q) => normalizedName.includes(q));
-    if (!matches) continue;
+    // Must include at least one of the first 2 query words
+    const hasRequired = requiredWords.some((q) => normalizedName.includes(q));
+    if (!hasRequired) continue;
 
-    // Deduplicate by exact name
+    // Deduplicate by exact normalized name
     if (seen.has(normalizedName)) continue;
     seen.add(normalizedName);
 
-    out.push(item);
-    if (out.length >= 8) break;
+    matched.push(item);
   }
 
-  return out;
+  // Prioritize results that contain the first (usually brand) query word
+  matched.sort((a, b) => {
+    const nameA = normalizeTurkish(a.name || a.attributes?.name || "");
+    const nameB = normalizeTurkish(b.name || b.attributes?.name || "");
+    const aHas = nameA.includes(preferredWord) ? 1 : 0;
+    const bHas = nameB.includes(preferredWord) ? 1 : 0;
+    return bHas - aHas;
+  });
+
+  return matched.slice(0, 8);
 }
 
 function renderResults(items) {
