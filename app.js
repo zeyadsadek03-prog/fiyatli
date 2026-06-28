@@ -43,43 +43,25 @@ function normalizeTurkish(text) {
     .replace(/ü/g, "u");
 }
 
-function filterDedupAndLimit(items, query) {
-  const queries = query
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => normalizeTurkish(w));
+function filterResults(products, query) {
+  const words = query.toLowerCase()
+    .replace(/ı/g, 'i').replace(/ü/g, 'u')
+    .replace(/ş/g, 's').replace(/ğ/g, 'g')
+    .replace(/ö/g, 'o').replace(/ç/g, 'c')
+    .split(' ')
+    .filter(w => w.length > 2);
 
-  const requiredWords = queries.slice(0, 2);
-  const preferredWord = queries[0];
+  const brand = words[0];
 
-  const seen = new Set();
-  const matched = [];
-
-  for (const item of items) {
-    const name = item.name || item.attributes?.name || "";
-    const normalizedName = normalizeTurkish(name);
-
-    // Must include at least one of the first 2 query words
-    const hasRequired = requiredWords.some((q) => normalizedName.includes(q));
-    if (!hasRequired) continue;
-
-    // Deduplicate by exact normalized name
-    if (seen.has(normalizedName)) continue;
-    seen.add(normalizedName);
-
-    matched.push(item);
-  }
-
-  // Prioritize results that contain the first (usually brand) query word
-  matched.sort((a, b) => {
-    const nameA = normalizeTurkish(a.name || a.attributes?.name || "");
-    const nameB = normalizeTurkish(b.name || b.attributes?.name || "");
-    const aHas = nameA.includes(preferredWord) ? 1 : 0;
-    const bHas = nameB.includes(preferredWord) ? 1 : 0;
-    return bHas - aHas;
+  const filtered = products.filter(p => {
+    const name = p.name.toLowerCase()
+      .replace(/ı/g, 'i').replace(/ü/g, 'u')
+      .replace(/ş/g, 's').replace(/ğ/g, 'g')
+      .replace(/ö/g, 'o').replace(/ç/g, 'c');
+    return name.includes(brand);
   });
 
-  return matched.slice(0, 8);
+  return filtered;
 }
 
 function renderResults(items) {
@@ -191,7 +173,7 @@ async function searchText(query) {
     if (products.length > 0) {
       console.log("first product sample:", JSON.stringify(products[0], null, 2));
     }
-    const items = filterDedupAndLimit(products, query);
+    const items = filterResults(products, query);
     if (items.length === 0) {
       allResults = [];
       showingAll = false;
