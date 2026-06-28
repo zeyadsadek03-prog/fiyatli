@@ -262,60 +262,54 @@ loadMoreBtn.addEventListener("click", () => {
   }
 });
 
-/* Rotating word animation */
-(function () {
-  const rotatingEl = document.getElementById("rotating-word");
-  if (!rotatingEl) return;
+function animateOut(spans) {
+  spans.forEach((span, i) => {
+    span.style.transition = `transform 0.2s ease ${i * 0.03}s, opacity 0.2s ease ${i * 0.03}s`;
+    span.style.transform = 'translateY(-120%)';
+    span.style.opacity = '0';
+  });
+}
 
-  const words = ["sorgula", "öğren", "karşılaştır", "bul"];
-  let wordIndex = 0;
-  let timeouts = [];
-
-  function clearScheduled() {
-    timeouts.forEach((t) => clearTimeout(t));
-    timeouts = [];
-  }
-
-  function scheduleNext() {
-    const t = setTimeout(rotate, 2500);
-    timeouts.push(t);
-  }
-
-  function renderChars(word) {
-    rotatingEl.innerHTML = "";
-    return Array.from(word).map((char) => {
-      const wrapper = document.createElement("span");
-      wrapper.className = "char-wrapper";
-
-      const span = document.createElement("span");
-      span.className = "char";
-      span.textContent = char;
-
-      wrapper.appendChild(span);
-      rotatingEl.appendChild(wrapper);
-      return span;
-    });
-  }
-
-  function rotate() {
-    const currentWord = words[wordIndex];
-    const chars = renderChars(currentWord);
-    wordIndex = (wordIndex + 1) % words.length;
-
-    chars.forEach((char, i) => {
-      const t = setTimeout(() => {
-        char.style.animation = `charIn 0.3s forwards`;
-      }, i * 30);
-      timeouts.push(t);
-    });
-
-    const outT = setTimeout(() => {
-      chars.forEach((char) => {
-        char.style.animation = `charOut 0.3s forwards`;
+function animateIn(spans) {
+  spans.forEach(span => {
+    span.style.transition = 'none';
+    span.style.transform = 'translateY(100%)';
+    span.style.opacity = '0';
+  });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      spans.forEach((span, i) => {
+        span.style.transition = `transform 0.4s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.03}s, opacity 0.3s ease ${i * 0.03}s`;
+        span.style.transform = 'translateY(0)';
+        span.style.opacity = '1';
       });
-    }, 2500 - 300);
-    timeouts.push(outT);
-  }
+    });
+  });
+}
 
-  scheduleNext();
-})();
+function setWord(word) {
+  const container = document.getElementById('rotate-word');
+  container.innerHTML = '';
+  const spans = word.split('').map(char => {
+    const span = document.createElement('span');
+    span.textContent = char;
+    span.style.display = 'inline-block';
+    span.style.overflow = 'hidden';
+    container.appendChild(span);
+    return span;
+  });
+  animateIn(spans);
+  return spans;
+}
+
+const words = ['ucuz', 'hızlı', 'kolay', 'pratik'];
+let index = 0;
+let currentSpans = setWord(words[0]);
+
+setInterval(() => {
+  animateOut(currentSpans);
+  setTimeout(() => {
+    index = (index + 1) % words.length;
+    currentSpans = setWord(words[index]);
+  }, 300);
+}, 2500);

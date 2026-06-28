@@ -31,6 +31,17 @@ header h1 {
   letter-spacing: -0.5px;
 }
 
+#rotate-word {
+  display: inline-flex;
+  overflow: hidden;
+  background: #22c55e;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 8px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 .subtitle {
   color: #6b7280;
   font-size: 14px;
