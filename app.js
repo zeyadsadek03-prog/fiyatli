@@ -107,12 +107,8 @@ async function searchPhoto(file) {
   resultsSection.style.display = "none";
 
   try {
-    const worker = await Tesseract.createWorker("tur", 1, {
-      langPath: "https://cdn.jsdelivr.net/npm/tesseract.js@v2.1.0/lib/tessdata/",
-    });
-    const { data } = await worker.recognize(file);
-    const text = (data.text || "").trim();
-    await worker.terminate();
+    const result = await Tesseract.recognize(file, "tur");
+    const text = (result?.data?.text || "").trim();
 
     if (!text) {
       errorText.textContent = "Fotoğraftan metin okunamadı. Daha net bir fotoğraf deneyin.";
