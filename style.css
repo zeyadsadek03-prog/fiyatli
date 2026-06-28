@@ -45,6 +45,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 header {
@@ -597,7 +598,6 @@ button[type="submit"]:active {
 }
 
 .footer-hint {
-  margin-top: auto;
   padding-top: 40px;
   display: flex;
   align-items: center;
