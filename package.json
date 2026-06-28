@@ -1,0 +1,12 @@
+{
+  "name": "fiyatli",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "vercel build",
+    "start": "vercel start"
+  },
+  "dependencies": {
+    "tesseract.js": "^2.1.0"
+  }
+}

@@ -103,25 +103,42 @@ async function searchText(query) {
 }
 
 async function searchPhoto(file) {
-  setStatus("Fotoğraf tanınıyor…");
+  setStatus("Fotoğraf yükleniyor ve tanınıyor…");
   resultsSection.style.display = "none";
 
   try {
-    const result = await Tesseract.recognize(file, "tur");
-    const text = (result?.data?.text || "").trim();
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
-    if (!text) {
-      errorText.textContent = "Fotoğraftan metin okunamadı. Daha net bir fotoğraf deneyin.";
-      show(errorBox);
-      setStatus("");
-      return;
+    const response = await fetch("/api/photosearch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64 }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
     }
 
-    await searchText(text);
+    const data = await response.json();
+    const items = Array.isArray(data?.results) ? data.results : [];
+
+    if (items.length === 0) {
+      show(noResultsSection);
+    } else {
+      renderResults(items);
+      show(resultsSection);
+    }
   } catch (err) {
-    console.error("OCR error:", err);
+    console.error("Photo search error:", err);
     errorText.textContent = "Fotoğraf ile arama başarısız oldu. Lütfen tekrar deneyin.";
     show(errorBox);
+  } finally {
     setStatus("");
   }
 }
