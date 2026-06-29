@@ -437,22 +437,7 @@ function normalizeMigrosItem(item) {
 }
 
 async function searchMigros(query) {
-  const url = `https://www.migros.com.tr/rest/search/screens/products?q=${encodeURIComponent(query)}`;
-
-  const response = await fetch(url, {
-    mode: "cors",
-    headers: {
-      accept: "application/json, text/plain, */*",
-      referer: `https://www.migros.com.tr/arama?q=${encodeURIComponent(query)}`,
-      "sec-fetch-mode": "cors",
-      "sec-fetch-site": "same-origin",
-      "x-device-pwa": "true",
-      "x-forwarded-rest": "true",
-      "x-pwa": "true",
-      "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    },
-  });
+  const response = await fetch(`/api/migros?q=${encodeURIComponent(query)}`);
 
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
