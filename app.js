@@ -198,14 +198,14 @@ function renderResults(items) {
 
     const priceEl = document.createElement("span");
     priceEl.className = "result-price";
-    priceEl.textContent = priceText ? `₺${priceText}` : "";
+    priceEl.textContent = priceText || "";
 
     priceWrap.appendChild(priceEl);
 
     if (oldPriceText) {
       const old = document.createElement("span");
       old.className = "result-old-price";
-      old.textContent = `₺${oldPriceText}`;
+      old.textContent = oldPriceText || "";
       priceWrap.appendChild(old);
     }
 
