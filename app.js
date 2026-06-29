@@ -488,14 +488,8 @@ async function searchMigros(query) {
   console.log("Migros raw response:", data);
   const products = data?.data?.searchInfo?.storeProductInfos || [];
 
-  const aggregationGroups = data?.data?.searchInfo?.aggregationGroups || [];
-  const brandAggregation = aggregationGroups.find(g => g.type === 'BRAND');
-  const brandList = Array.isArray(brandAggregation?.aggregationInfos)
-    ? brandAggregation.aggregationInfos.map(info => info.label)
-    : [];
-  console.debug('[brands]', brandList);
-
-  const items = rerankItems(products.map(normalizeMigrosItem), query, brandList);
+  const filtered = filterResults(products.map(normalizeMigrosItem), query);
+  const items = rerankItems(filtered, query);
 
   migrosAllResults = items;
 
