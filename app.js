@@ -357,6 +357,41 @@ function updateLoadMore() {
   }
 }
 
+function rerankItems(items, query) {
+  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!tokens.length) return items;
+
+  const scored = items.map((item, index) => {
+    const nameLower = (item.name || '').toLowerCase();
+    let score = 0;
+
+    if (nameLower.includes(tokens[0])) {
+      score += 10;
+    }
+
+    for (let i = 1; i < tokens.length; i++) {
+      if (nameLower.includes(tokens[i])) {
+        score += 3;
+      }
+    }
+
+    const phrase = tokens.join(' ');
+    if (nameLower.includes(phrase)) {
+      score += 5;
+    }
+
+    console.debug(`[rerank] "${item.name}" score=${score}`);
+    return { item, score, index };
+  });
+
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.index - b.index;
+  });
+
+  return scored.map(s => s.item);
+}
+
 async function searchA101(query) {
   const base = "https://a101-util.wawlabs.com/combined_api_v2";
   const payload = JSON.stringify({
@@ -385,7 +420,7 @@ async function searchA101(query) {
 
   const data = await response.json();
   const products = Array.isArray(data?.products) ? data.products : [];
-  const items = filterResults(products, query);
+  const items = rerankItems(filterResults(products, query), query);
 
   a101AllResults = items;
   showingAll = false;
@@ -446,7 +481,7 @@ async function searchMigros(query) {
   const data = await response.json();
   console.log("Migros raw response:", data);
   const products = data?.data?.searchInfo?.storeProductInfos || [];
-  const items = products.map(normalizeMigrosItem);
+  const items = rerankItems(products.map(normalizeMigrosItem), query);
 
   migrosAllResults = items;
 
