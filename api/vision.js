@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
           {
             role: "user",
             content: [
-              { type: "text", text: "What product is shown in this image? Reply with only the brand name and product name, maximum 4 words, nothing else." },
+              { type: "text", text: "Bu görseldeki ürünün adını Türkçe olarak sadece ürün adı ve marka adı şeklinde yaz. Maksimum 4 kelime. Sadece Türkçe cevap ver." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
