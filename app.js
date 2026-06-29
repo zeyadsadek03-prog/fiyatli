@@ -488,8 +488,71 @@ async function searchMigros(query) {
   console.log("Migros raw response:", data);
   const products = data?.data?.searchInfo?.storeProductInfos || [];
 
-  const filtered = filterResults(products.map(normalizeMigrosItem), query);
-  const items = rerankItems(filtered, query);
+  const normalized = products.map(normalizeMigrosItem);
+  const filtered = filterResults(normalized, query);
+
+  const tokens = query
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/ü/g, "u")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const aggregationGroups = data?.data?.searchInfo?.aggregationGroups || [];
+  const brandAggregation = aggregationGroups.find(g => g.type === "BRAND");
+  const brandList = Array.isArray(brandAggregation?.aggregationInfos)
+    ? brandAggregation.aggregationInfos.map(info => info.label)
+    : [];
+  const brandSet = new Set(brandList.map(b => b.toLowerCase()));
+
+  let strictFiltered;
+  if (tokens.length > 1) {
+    strictFiltered = filtered.filter((item) => {
+      const name = (item.name || "").toLowerCase();
+      return tokens.every((token) => name.includes(token));
+    });
+
+    if (strictFiltered.length === 0) {
+      const tokenCounts = {};
+      for (const t of tokens) {
+        tokenCounts[t] = normalized.filter((item) => {
+          const name = (item.name || "").toLowerCase();
+          return name.includes(t);
+        }).length;
+      }
+
+      const fallbackToken = tokens
+        .slice()
+        .sort((a, b) => {
+          const countA = tokenCounts[a] || 0;
+          const countB = tokenCounts[b] || 0;
+          if (countA !== countB) return countA - countB;
+          const brandA = brandSet.has(a) ? 1 : 0;
+          const brandB = brandSet.has(b) ? 1 : 0;
+          return brandB - brandA;
+        })[0];
+
+      strictFiltered = normalized.filter((item) => {
+        const name = (item.name || "").toLowerCase();
+        return name.includes(fallbackToken);
+      });
+      console.debug(
+        `[migros] strict=0, fallback="${fallbackToken}" count=${strictFiltered.length}`
+      );
+    }
+  } else {
+    strictFiltered = filtered;
+  }
+
+  console.debug(
+    `[migros] query="${query}" raw=${products.length} filtered=${strictFiltered.length}`
+  );
+
+  const items = rerankItems(strictFiltered, query);
 
   migrosAllResults = items;
 
