@@ -310,6 +310,13 @@ function setPhotoStatus(message) {
 }
 
 async function runPhotoSearch(file) {
+  if (!file.type.startsWith('image/')) {
+    setPhotoStatus('');
+    errorText.textContent = 'Lütfen sadece fotoğraf yükleyin (JPG, PNG, WEBP)';
+    setView('error');
+    return;
+  }
+
   setPhotoStatus("Fotoğraf analiz ediliyor...");
   try {
     const base64 = await new Promise((resolve, reject) => {
