@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
           {
             role: "user",
             content: [
-              { type: "text", text: "Bu görseldeki ürünün genel adını veya kategorisini Türkçe yaz. Marka adını YAZMA, logoyu dikkate alma. Sadece ürün türü, en fazla 2 kelime. Örnekler: 'fransız ekmeği', 'yoğurt', 'çikolata'" },
+              { type: "text", text: "Bu görseldeki ürünün adını Türkçe olarak sadece ürün adı ve marka adı şeklinde yaz. Maksimum 4 kelime. Sadece Türkçe cevap ver." },
               { type: "image_url", image_url: { url: image } },
             ],
           },
