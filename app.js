@@ -445,7 +445,7 @@ async function searchMigros(query) {
 
   const data = await response.json();
   console.log("Migros raw response:", data);
-  const products = data?.searchInfo?.storeProductInfos || [];
+  const products = data?.data?.searchInfo?.storeProductInfos || [];
   const items = products.map(normalizeMigrosItem);
 
   migrosAllResults = items;
