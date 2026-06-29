@@ -357,21 +357,27 @@ function updateLoadMore() {
   }
 }
 
-function rerankItems(items, query) {
+function rerankItems(items, query, brandList = []) {
   const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
   if (!tokens.length) return items;
+
+  const brandSet = new Set(
+    brandList.map(b => b.toLowerCase()).filter(Boolean)
+  );
 
   const scored = items.map((item, index) => {
     const nameLower = (item.name || '').toLowerCase();
     let score = 0;
+    let brandTokensMatched = 0;
 
-    if (nameLower.includes(tokens[0])) {
-      score += 10;
-    }
-
-    for (let i = 1; i < tokens.length; i++) {
-      if (nameLower.includes(tokens[i])) {
-        score += 3;
+    for (const token of tokens) {
+      if (nameLower.includes(token)) {
+        if (brandSet.has(token)) {
+          score += 10;
+          brandTokensMatched++;
+        } else {
+          score += 3;
+        }
       }
     }
 
@@ -481,7 +487,15 @@ async function searchMigros(query) {
   const data = await response.json();
   console.log("Migros raw response:", data);
   const products = data?.data?.searchInfo?.storeProductInfos || [];
-  const items = rerankItems(products.map(normalizeMigrosItem), query);
+
+  const aggregationGroups = data?.data?.searchInfo?.aggregationGroups || [];
+  const brandAggregation = aggregationGroups.find(g => g.type === 'BRAND');
+  const brandList = Array.isArray(brandAggregation?.aggregationInfos)
+    ? brandAggregation.aggregationInfos.map(info => info.label)
+    : [];
+  console.debug('[brands]', brandList);
+
+  const items = rerankItems(products.map(normalizeMigrosItem), query, brandList);
 
   migrosAllResults = items;
 
