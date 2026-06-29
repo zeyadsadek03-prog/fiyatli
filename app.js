@@ -235,28 +235,37 @@ function renderResults(items) {
 }
 
 async function searchText(query) {
-  setView("loading");
-  currentQuery = query;
+  const sanitized = query.replace(/<[^>]*>/g, '').trim();
+  if (!sanitized) {
+    setView('empty');
+    if (emptyText) {
+      emptyText.textContent = 'Geçersiz arama';
+    }
+    return;
+  }
+
+  setView('loading');
+  currentQuery = sanitized;
 
   try {
-    const base = "https://a101-util.wawlabs.com/combined_api_v2";
+    const base = 'https://a101-util.wawlabs.com/combined_api_v2';
     const payload = JSON.stringify({
-      query,
+      query: sanitized,
       filter: [],
       sort: [],
       page_number: 1,
       row_per_page: 20,
     });
-    const url = `${base}?&q=${encodeURIComponent(query)}&location=VS032-SLOT&json_data=${encodeURIComponent(payload)}`;
+    const url = `${base}?&q=${encodeURIComponent(sanitized)}&location=VS032-SLOT&json_data=${encodeURIComponent(payload)}`;
 
     const response = await fetch(url, {
-      mode: "cors",
+      mode: 'cors',
       headers: {
-        Referer: "https://www.a101.com.tr",
-        Origin: "https://www.a101.com.tr",
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "application/json",
+        Referer: 'https://www.a101.com.tr',
+        Origin: 'https://www.a101.com.tr',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'application/json',
       },
     });
 
@@ -265,33 +274,33 @@ async function searchText(query) {
     }
 
     const data = await response.json();
-    console.log("search response:", data);
+    console.log('search response:', data);
     const products = Array.isArray(data?.products) ? data.products : [];
     if (products.length > 0) {
-      console.log("first product sample:", JSON.stringify(products[0], null, 2));
+      console.log('first product sample:', JSON.stringify(products[0], null, 2));
     }
 
-    const items = filterResults(products, query);
+    const items = filterResults(products, sanitized);
     if (items.length === 0) {
       allResults = [];
       showingAll = false;
-      loadMoreBtn.style.display = "none";
-      setView("empty");
+      loadMoreBtn.style.display = 'none';
+      setView('empty');
       if (emptyText) {
-        emptyText.innerHTML = `"<span style="font-weight:700;color:inherit">${query}</span>" için ürün bulunamadı. Farklı bir arama deneyin.`;
+        emptyText.innerHTML = `"<span style="font-weight:700;color:inherit">${sanitized}</span>" için ürün bulunamadı. Farklı bir arama deneyin.`;
       }
     } else {
       allResults = items;
       showingAll = false;
       renderResults(allResults.slice(0, 3));
-      loadMoreBtn.style.display = allResults.length > 3 ? "block" : "none";
-      loadMoreBtn.textContent = "Daha fazla göster";
-      setView("results");
+      loadMoreBtn.style.display = allResults.length > 3 ? 'block' : 'none';
+      loadMoreBtn.textContent = 'Daha fazla göster';
+      setView('results');
     }
   } catch (err) {
     console.error(err);
-    errorText.textContent = "Arama başarısız oldu. Lütfen tekrar deneyin.";
-    setView("error");
+    errorText.textContent = 'Arama başarısız oldu. Lütfen tekrar deneyin.';
+    setView('error');
   }
 }
 
