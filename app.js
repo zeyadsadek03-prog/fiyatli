@@ -23,8 +23,20 @@ const loadingState = document.getElementById("loading-state");
 
 let a101AllResults = [];
 let migrosAllResults = [];
-let showingAll = false;
+let perStoreLimit = 1;
 let currentQuery = "";
+
+const STORE_LIMIT_PROGRESSION = [1, 3, 6]; // 1 -> 3 -> 6 -> +3 each subsequent click
+
+function getNextLimit(current) {
+  if (current < 6) {
+    const idx = STORE_LIMIT_PROGRESSION.indexOf(current);
+    if (idx !== -1 && idx < STORE_LIMIT_PROGRESSION.length - 1) {
+      return STORE_LIMIT_PROGRESSION[idx + 1];
+    }
+  }
+  return current + 3;
+}
 
 function setView(state) {
   const sections = [resultsSection, noResultsSection, errorBox, idleState, loadingState, emptyState];
@@ -270,6 +282,7 @@ async function searchText(query) {
 
   setView("loading");
   currentQuery = sanitized;
+  perStoreLimit = 1;
 
   // Clear columns
   a101List.innerHTML = "";
@@ -345,13 +358,11 @@ function setColumnLoading(listEl) {
 }
 
 function updateLoadMore() {
-  const total = a101AllResults.length + migrosAllResults.length;
-  if (!showingAll && total > 3) {
+  const a101HasMore = a101AllResults.length > perStoreLimit;
+  const migrosHasMore = migrosAllResults.length > perStoreLimit;
+  if (a101HasMore || migrosHasMore) {
     loadMoreBtn.style.display = "block";
     loadMoreBtn.textContent = "Daha fazla göster";
-  } else if (showingAll && total > 3) {
-    loadMoreBtn.style.display = "block";
-    loadMoreBtn.textContent = "Daha az göster";
   } else {
     loadMoreBtn.style.display = "none";
   }
@@ -392,7 +403,7 @@ function rerankItems(items, query, brandList = []) {
 
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
-    return a.index - b.index;
+    return a.index - a.index;
   });
 
   return scored.map(s => s.item);
@@ -429,13 +440,12 @@ async function searchA101(query) {
   const items = rerankItems(filterResults(products, query), query);
 
   a101AllResults = items;
-  showingAll = false;
 
   if (items.length === 0) {
     a101List.innerHTML = "";
     a101Count.textContent = "0 sonuç";
   } else {
-    renderResults(items.slice(0, 3), a101List, a101Count, "A101");
+    renderResults(items.slice(0, perStoreLimit), a101List, a101Count, "A101");
   }
 }
 
@@ -497,7 +507,7 @@ async function searchMigros(query) {
     migrosList.innerHTML = "";
     migrosCount.textContent = "0 sonuç";
   } else {
-    renderResults(items.slice(0, 3), migrosList, migrosCount, "Migros");
+    renderResults(items.slice(0, perStoreLimit), migrosList, migrosCount, "Migros");
   }
 }
 
@@ -578,18 +588,12 @@ photoInput.addEventListener("change", (e) => {
 });
 
 loadMoreBtn.addEventListener("click", () => {
-  const total = a101AllResults.length + migrosAllResults.length;
-  if (!showingAll && total > 3) {
-    showingAll = true;
-    renderResults(a101AllResults, a101List, a101Count, "A101");
-    renderResults(migrosAllResults, migrosList, migrosCount, "Migros");
-    loadMoreBtn.textContent = "Daha az göster";
-  } else if (showingAll && total > 3) {
-    showingAll = false;
-    renderResults(a101AllResults.slice(0, 3), a101List, a101Count, "A101");
-    renderResults(migrosAllResults.slice(0, 3), migrosList, migrosCount, "Migros");
-    loadMoreBtn.textContent = "Daha fazla göster";
-  }
+  const nextLimit = getNextLimit(perStoreLimit);
+  perStoreLimit = nextLimit;
+
+  renderResults(a101AllResults.slice(0, perStoreLimit), a101List, a101Count, "A101");
+  renderResults(migrosAllResults.slice(0, perStoreLimit), migrosList, migrosCount, "Migros");
+  updateLoadMore();
   resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
