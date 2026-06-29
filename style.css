@@ -181,6 +181,22 @@ button[type="submit"]:active {
   margin-top: 8px;
 }
 
+.results-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .results-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.results-column {
+  min-width: 0;
+}
+
 .results-header {
   display: flex;
   align-items: center;
@@ -197,13 +213,32 @@ button[type="submit"]:active {
   letter-spacing: 0.06em;
 }
 
-.results-header .a101-badge {
+.store-badge {
   font-size: 10px;
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 999px;
+}
+
+.a101-badge {
   background: var(--accent);
   color: var(--accent-foreground);
+}
+
+.migros-badge {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.column-error {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--destructive);
+  font-size: 13px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
 }
 
 .results-list {

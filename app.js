@@ -3,8 +3,12 @@ const queryInput = document.getElementById("query");
 const searchBox = document.querySelector(".search-box");
 
 const resultsSection = document.getElementById("results");
-const resultsList = document.getElementById("results-list");
-const resultsCount = document.getElementById("results-count");
+const a101List = document.getElementById("a101-list");
+const a101Count = document.getElementById("a101-count");
+const a101Error = document.getElementById("a101-error");
+const migrosList = document.getElementById("migros-list");
+const migrosCount = document.getElementById("migros-count");
+const migrosError = document.getElementById("migros-error");
 const noResultsSection = document.getElementById("no-results");
 const emptyState = document.getElementById("empty-state");
 const emptyText = emptyState ? emptyState.querySelector(".no-results-msg") : null;
@@ -17,7 +21,8 @@ const loadMoreBtn = document.getElementById("load-more-btn");
 const idleState = document.getElementById("idle-state");
 const loadingState = document.getElementById("loading-state");
 
-let allResults = [];
+let a101AllResults = [];
+let migrosAllResults = [];
 let showingAll = false;
 let currentQuery = "";
 
@@ -108,8 +113,8 @@ function extractUrl(item) {
   return item.url || item.attributes?.url || "#";
 }
 
-function renderResults(items) {
-  resultsList.innerHTML = "";
+function renderResults(items, listEl, countEl, badgeText = "A101") {
+  listEl.innerHTML = "";
   items.forEach((item, index) => {
     const url = extractUrl(item);
     const a = document.createElement("a");
@@ -141,14 +146,14 @@ function renderResults(items) {
       img.classList.add("loaded");
     }
 
-    const a101Badge = document.createElement("span");
-    a101Badge.className = "a101-badge-img";
-    a101Badge.textContent = "A101";
+    const storeBadge = document.createElement("span");
+    storeBadge.className = "a101-badge-img";
+    storeBadge.textContent = badgeText;
 
     const wrap = document.createElement("div");
     wrap.className = "result-image-wrap";
     wrap.appendChild(img);
-    wrap.appendChild(a101Badge);
+    wrap.appendChild(storeBadge);
 
     const discount = (item.discount || item.attributes?.discount || 0);
     if (discount > 0) {
@@ -229,7 +234,7 @@ function renderResults(items) {
 
     a.appendChild(wrap);
     a.appendChild(body);
-    resultsList.appendChild(a);
+    listEl.appendChild(a);
   });
 
   const fadeObserver = new IntersectionObserver(
@@ -244,82 +249,226 @@ function renderResults(items) {
     { threshold: 0.1 }
   );
 
-  document.querySelectorAll(".blur-fade-item").forEach((el) => {
+  listEl.querySelectorAll(".blur-fade-item").forEach((el) => {
     fadeObserver.observe(el);
   });
 
-  if (resultsCount) {
-    resultsCount.textContent = `${items.length} ürün bulundu`;
+  if (countEl) {
+    countEl.textContent = `${items.length} sonuç`;
   }
 }
 
 async function searchText(query) {
-  const sanitized = query.replace(/<[^>]*>/g, '').trim();
+  const sanitized = query.replace(/<[^>]*>/g, "").trim();
   if (!sanitized) {
-    setView('empty');
+    setView("empty");
     if (emptyText) {
-      emptyText.textContent = 'Geçersiz arama';
+      emptyText.textContent = "Geçersiz arama";
     }
     return;
   }
 
-  setView('loading');
+  setView("loading");
   currentQuery = sanitized;
 
-  try {
-    const base = 'https://a101-util.wawlabs.com/combined_api_v2';
-    const payload = JSON.stringify({
-      query: sanitized,
-      filter: [],
-      sort: [],
-      page_number: 1,
-      row_per_page: 20,
-    });
-    const url = `${base}?&q=${encodeURIComponent(sanitized)}&location=VS032-SLOT&json_data=${encodeURIComponent(payload)}`;
+  // Clear columns
+  a101List.innerHTML = "";
+  a101Count.textContent = "";
+  a101Error.style.display = "none";
+  migrosList.innerHTML = "";
+  migrosCount.textContent = "";
+  migrosError.style.display = "none";
 
-    const response = await fetch(url, {
-      mode: 'cors',
-      headers: {
-        Referer: 'https://www.a101.com.tr',
-        Origin: 'https://www.a101.com.tr',
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        Accept: 'application/json',
-      },
-    });
+  // Show per-column loading skeletons
+  setColumnLoading(a101List);
+  setColumnLoading(migrosList);
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+  let a101Settled = false;
+  let migrosSettled = false;
 
-    const data = await response.json();
-    console.log('search response:', data);
-    const products = Array.isArray(data?.products) ? data.products : [];
-    if (products.length > 0) {
-      console.log('first product sample:', JSON.stringify(products[0], null, 2));
-    }
-
-    const items = filterResults(products, sanitized);
-    if (items.length === 0) {
-      allResults = [];
-      showingAll = false;
-      loadMoreBtn.style.display = 'none';
-      setView('empty');
-      if (emptyText) {
-        emptyText.innerHTML = `"<span style="font-weight:700;color:inherit">${sanitized}</span>" için ürün bulunamadı. Farklı bir arama deneyin.`;
+  function checkAllSettled() {
+    if (a101Settled && migrosSettled) {
+      if (a101List.children.length === 0 && migrosList.children.length === 0) {
+        setView("empty");
+        if (emptyText) {
+          emptyText.innerHTML = `"<span style="font-weight:700;color:inherit">${sanitized}</span>" için ürün bulunamadı. Farklı bir arama deneyin.`;
+        }
+      } else {
+        setView("results");
       }
-    } else {
-      allResults = items;
-      showingAll = false;
-      renderResults(allResults.slice(0, 3));
-      loadMoreBtn.style.display = allResults.length > 3 ? 'block' : 'none';
-      loadMoreBtn.textContent = 'Daha fazla göster';
-      setView('results');
+      updateLoadMore();
     }
-  } catch (err) {
-    console.error(err);
-    errorText.textContent = 'Arama başarısız oldu. Lütfen tekrar deneyin.';
-    setView('error');
+  }
+
+  searchA101(sanitized)
+    .then(() => {
+      a101Settled = true;
+      checkAllSettled();
+    })
+    .catch(() => {
+      a101Error.textContent = "A101 results unavailable";
+      a101Error.style.display = "";
+      a101Settled = true;
+      checkAllSettled();
+    });
+
+  searchMigros(sanitized)
+    .then(() => {
+      migrosSettled = true;
+      checkAllSettled();
+    })
+    .catch(() => {
+      migrosError.textContent = "Migros results unavailable";
+      migrosError.style.display = "";
+      migrosSettled = true;
+      checkAllSettled();
+    });
+}
+
+function setColumnLoading(listEl) {
+  listEl.innerHTML = "";
+  for (let i = 0; i < 3; i++) {
+    const card = document.createElement("div");
+    card.className = "skeleton-card";
+    card.innerHTML = `
+      <div class="skeleton-img"></div>
+      <div class="skeleton-body">
+        <div>
+          <div class="skeleton-line long"></div>
+          <div class="skeleton-line medium" style="margin-top:6px;"></div>
+        </div>
+        <div class="skeleton-price"></div>
+      </div>
+    `;
+    listEl.appendChild(card);
+  }
+}
+
+function updateLoadMore() {
+  const total = a101AllResults.length + migrosAllResults.length;
+  if (!showingAll && total > 3) {
+    loadMoreBtn.style.display = "block";
+    loadMoreBtn.textContent = "Daha fazla göster";
+  } else if (showingAll && total > 3) {
+    loadMoreBtn.style.display = "block";
+    loadMoreBtn.textContent = "Daha az göster";
+  } else {
+    loadMoreBtn.style.display = "none";
+  }
+}
+
+async function searchA101(query) {
+  const base = "https://a101-util.wawlabs.com/combined_api_v2";
+  const payload = JSON.stringify({
+    query: query,
+    filter: [],
+    sort: [],
+    page_number: 1,
+    row_per_page: 20,
+  });
+  const url = `${base}?&q=${encodeURIComponent(query)}&location=VS032-SLOT&json_data=${encodeURIComponent(payload)}`;
+
+  const response = await fetch(url, {
+    mode: "cors",
+    headers: {
+      Referer: "https://www.a101.com.tr",
+      Origin: "https://www.a101.com.tr",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const products = Array.isArray(data?.products) ? data.products : [];
+  const items = filterResults(products, query);
+
+  a101AllResults = items;
+  showingAll = false;
+
+  if (items.length === 0) {
+    a101List.innerHTML = "";
+    a101Count.textContent = "0 sonuç";
+  } else {
+    renderResults(items.slice(0, 3), a101List, a101Count, "A101");
+  }
+}
+
+function normalizeMigrosItem(item) {
+  const name = item.name || "";
+  const shownPrice = item.shownPrice ?? item.regularPrice ?? 0;
+  const priceNum = typeof shownPrice === "number" ? shownPrice / 100 : 0;
+  const regularPriceNum =
+    typeof item.regularPrice === "number" ? item.regularPrice / 100 : 0;
+  const discountRate =
+    typeof item.discountRate === "number" ? item.discountRate : 0;
+
+  const imageUrl =
+    item.images?.[0]?.urls?.PRODUCT_LIST ||
+    item.images?.[0]?.url ||
+    "";
+
+  const url =
+    item.prettyName && item.prettyName.trim() !== ""
+      ? `https://www.migros.com.tr/${item.prettyName}`
+      : "#";
+
+  const inStock = item.status === "IN_SALE";
+
+  return {
+    name,
+    price_str: priceNum > 0 ? priceNum.toFixed(2).replace(".", ",") : "",
+    old_price_str:
+      regularPriceNum > 0 && regularPriceNum > priceNum
+        ? regularPriceNum.toFixed(2).replace(".", ",")
+        : "",
+    discount: discountRate,
+    image_url: imageUrl,
+    url,
+    attributes: {
+      inStock,
+      category: item.categoryName || "",
+    },
+  };
+}
+
+async function searchMigros(query) {
+  const url = `https://www.migros.com.tr/rest/search/screens/products?q=${encodeURIComponent(query)}`;
+
+  const response = await fetch(url, {
+    mode: "cors",
+    headers: {
+      accept: "application/json, text/plain, */*",
+      referer: `https://www.migros.com.tr/arama?q=${encodeURIComponent(query)}`,
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "x-device-pwa": "true",
+      "x-forwarded-rest": "true",
+      "x-pwa": "true",
+      "user-agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  const products = data?.searchInfo?.storeProductInfos || [];
+  const items = products.map(normalizeMigrosItem);
+
+  migrosAllResults = items;
+
+  if (items.length === 0) {
+    migrosList.innerHTML = "";
+    migrosCount.textContent = "0 sonuç";
+  } else {
+    renderResults(items.slice(0, 3), migrosList, migrosCount, "Migros");
   }
 }
 
@@ -400,17 +549,19 @@ photoInput.addEventListener("change", (e) => {
 });
 
 loadMoreBtn.addEventListener("click", () => {
-  if (!showingAll && allResults.length > 3) {
+  const total = a101AllResults.length + migrosAllResults.length;
+  if (!showingAll && total > 3) {
     showingAll = true;
-    renderResults(allResults);
+    renderResults(a101AllResults, a101List, a101Count, "A101");
+    renderResults(migrosAllResults, migrosList, migrosCount, "Migros");
     loadMoreBtn.textContent = "Daha az göster";
-    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
-  } else if (showingAll && allResults.length > 3) {
+  } else if (showingAll && total > 3) {
     showingAll = false;
-    renderResults(allResults.slice(0, 3));
+    renderResults(a101AllResults.slice(0, 3), a101List, a101Count, "A101");
+    renderResults(migrosAllResults.slice(0, 3), migrosList, migrosCount, "Migros");
     loadMoreBtn.textContent = "Daha fazla göster";
-    resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 queryInput.addEventListener("focus", () => {
