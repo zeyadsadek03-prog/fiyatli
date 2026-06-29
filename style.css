@@ -421,6 +421,19 @@ button[type="submit"]:active {
   transform: scale(0.98);
 }
 
+.blur-fade-item {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(6px);
+  transition: opacity 0.4s ease-out, filter 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.blur-fade-item.visible {
+  opacity: 1;
+  filter: blur(0px);
+  transform: translateY(0);
+}
+
 .error-box {
   margin-top: 20px;
   text-align: center;

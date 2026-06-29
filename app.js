@@ -110,13 +110,16 @@ function extractUrl(item) {
 
 function renderResults(items) {
   resultsList.innerHTML = "";
-  items.forEach((item) => {
+  items.forEach((item, index) => {
     const url = extractUrl(item);
     const a = document.createElement("a");
     a.className = "result-item";
     a.href = url;
     a.target = "_blank";
     a.rel = "noopener noreferrer";
+
+    a.classList.add("blur-fade-item");
+    a.style.transitionDelay = `${index * 0.15}s`;
 
     const imageUrl = extractImage(item);
     const img = document.createElement("img");
@@ -227,6 +230,22 @@ function renderResults(items) {
     a.appendChild(wrap);
     a.appendChild(body);
     resultsList.appendChild(a);
+  });
+
+  const fadeObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          fadeObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll(".blur-fade-item").forEach((el) => {
+    fadeObserver.observe(el);
   });
 
   if (resultsCount) {
