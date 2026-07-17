@@ -9,6 +9,9 @@ const a101Error = document.getElementById("a101-error");
 const migrosList = document.getElementById("migros-list");
 const migrosCount = document.getElementById("migros-count");
 const migrosError = document.getElementById("migros-error");
+const bimList = document.getElementById("bim-list");
+const bimCount = document.getElementById("bim-count");
+const bimError = document.getElementById("bim-error");
 const noResultsSection = document.getElementById("no-results");
 const emptyState = document.getElementById("empty-state");
 const emptyText = emptyState ? emptyState.querySelector(".no-results-msg") : null;
@@ -23,6 +26,7 @@ const loadingState = document.getElementById("loading-state");
 
 let a101AllResults = [];
 let migrosAllResults = [];
+let bimAllResults = [];
 let perStoreLimit = 1;
 let currentQuery = "";
 
@@ -291,20 +295,25 @@ async function searchText(query) {
   migrosList.innerHTML = "";
   migrosCount.textContent = "";
   migrosError.style.display = "none";
+  bimList.innerHTML = "";
+  bimCount.textContent = "";
+  bimError.style.display = "none";
 
   // Show per-column loading skeletons
   setColumnLoading(a101List);
   setColumnLoading(migrosList);
+  setColumnLoading(bimList);
 
   let a101Settled = false;
   let migrosSettled = false;
+  let bimSettled = false;
 
   function checkAllSettled() {
-    if (a101Settled && migrosSettled) {
-      if (a101List.children.length === 0 && migrosList.children.length === 0) {
+    if (a101Settled && migrosSettled && bimSettled) {
+      if (a101List.children.length === 0 && migrosList.children.length === 0 && bimList.children.length === 0) {
         setView("empty");
         if (emptyText) {
-          emptyText.innerHTML = `"<span style="font-weight:700;color:inherit">${sanitized}</span>" için ürün bulunamadı. Farklı bir arama deneyin.`;
+          emptyText.innerHTML = `"${sanitized}" için ürün bulunamadı. Farklı bir arama deneyin.`;
         }
       } else {
         setView("results");
@@ -336,6 +345,18 @@ async function searchText(query) {
       migrosSettled = true;
       checkAllSettled();
     });
+
+  searchBIM(sanitized)
+    .then(() => {
+      bimSettled = true;
+      checkAllSettled();
+    })
+    .catch(() => {
+      bimError.textContent = "BİM results unavailable";
+      bimError.style.display = "";
+      bimSettled = true;
+      checkAllSettled();
+    });
 }
 
 function setColumnLoading(listEl) {
@@ -360,7 +381,8 @@ function setColumnLoading(listEl) {
 function updateLoadMore() {
   const a101HasMore = a101AllResults.length > perStoreLimit;
   const migrosHasMore = migrosAllResults.length > perStoreLimit;
-  if (a101HasMore || migrosHasMore) {
+  const bimHasMore = bimAllResults.length > perStoreLimit;
+  if (a101HasMore || migrosHasMore || bimHasMore) {
     loadMoreBtn.style.display = "block";
     loadMoreBtn.textContent = "Daha fazla göster";
   } else {
@@ -511,6 +533,51 @@ async function searchMigros(query) {
   }
 }
 
+async function searchBIM(query) {
+  const response = await fetch(`/api/bim?q=${encodeURIComponent(query)}`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log("BIM raw response:", data);
+  const products = Array.isArray(data?.items) ? data.items : [];
+
+  const filtered = filterResultsBIM(products, query);
+  const items = rerankItems(filtered, query);
+
+  bimAllResults = items;
+
+  if (items.length === 0) {
+    bimList.innerHTML = "";
+    bimCount.textContent = "0 sonuç";
+  } else {
+    renderResults(items.slice(0, perStoreLimit), bimList, bimCount, "BİM");
+  }
+}
+
+function filterResultsBIM(products, query) {
+  const words = query.toLowerCase()
+    .replace(/ı/g, "i").replace(/ü/g, "u")
+    .replace(/ş/g, "s").replace(/ğ/g, "g")
+    .replace(/ö/g, "o").replace(/ç/g, "c")
+    .split(" ")
+    .filter(w => w.length > 2);
+
+  const brand = words[0];
+
+  const filtered = products.filter((p) => {
+    const name = (p.name || "").toLowerCase()
+      .replace(/ı/g, "i").replace(/ü/g, "u")
+      .replace(/ş/g, "s").replace(/ğ/g, "g")
+      .replace(/ö/g, "o").replace(/ç/g, "c");
+    return name.includes(brand);
+  });
+
+  return filtered;
+}
+
 function setPhotoStatus(message) {
   photoStatus.textContent = message;
   photoStatus.style.display = message ? "block" : "none";
@@ -593,6 +660,7 @@ loadMoreBtn.addEventListener("click", () => {
 
   renderResults(a101AllResults.slice(0, perStoreLimit), a101List, a101Count, "A101");
   renderResults(migrosAllResults.slice(0, perStoreLimit), migrosList, migrosCount, "Migros");
+  renderResults(bimAllResults.slice(0, perStoreLimit), bimList, bimCount, "BİM");
   updateLoadMore();
   resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 });
