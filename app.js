@@ -565,14 +565,14 @@ function filterResultsBIM(products, query) {
     .split(" ")
     .filter(w => w.length > 2);
 
-  const brand = words[0];
+  if (!words.length) return products;
 
   const filtered = products.filter((p) => {
-    const name = (p.name || "").toLowerCase()
+    const hay = `${p.name || ""} ${p.brand || ""}`.toLowerCase()
       .replace(/ı/g, "i").replace(/ü/g, "u")
       .replace(/ş/g, "s").replace(/ğ/g, "g")
       .replace(/ö/g, "o").replace(/ç/g, "c");
-    return name.includes(brand);
+    return words.some(w => hay.includes(w));
   });
 
   return filtered;
