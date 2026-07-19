@@ -447,7 +447,8 @@ async function searchMigros(query) {
   }
 
   const payload = await response.json();
-  const data = Array.isArray(payload) ? { searchInfo: { storeProductInfos: payload } } : payload;
+  const inner = payload?.data ?? payload;
+  const data = Array.isArray(inner) ? { searchInfo: { storeProductInfos: inner } } : inner;
   const products = data?.searchInfo?.storeProductInfos || [];
   const items = products.map(normalizeMigrosItem);
 
