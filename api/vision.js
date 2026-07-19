@@ -11,9 +11,9 @@ module.exports = async (req, res) => {
     }
 
     if (!process.env.GROQ_API_KEY) {
-      return res.status(500).json({ error: "GROQ_API_KEY not configured" });
+      console.error("vision proxy error: missing GROQ_API_KEY");
+      return res.status(500).json({ error: "Vision proxy misconfigured", details: "GROQ_API_KEY not set" });
     }
-
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {

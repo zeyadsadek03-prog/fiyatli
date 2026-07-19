@@ -515,7 +515,8 @@ async function runPhotoSearch(file) {
     await searchText(cleaned);
   } catch (err) {
     console.error("Photo search error:", err);
-    errorText.textContent = "Fotoğraf ile arama başarısız oldu.";
+    const detail = err && err.message ? err.message : "Bilinmeyen hata";
+    errorText.textContent = `Fotoğraf ile arama başarısız oldu: ${detail}`;
     setView("error");
     setPhotoStatus("");
   }
