@@ -521,6 +521,13 @@ async function runPhotoSearch(file) {
   }
 }
 
+document.getElementById("search-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const q = queryInput.value.trim();
+  if (!q) return;
+  searchText(q);
+});
+
 document.getElementById("search-submit").addEventListener("click", (e) => {
   e.preventDefault();
   const q = queryInput.value.trim();
