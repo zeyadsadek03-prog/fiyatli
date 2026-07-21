@@ -159,22 +159,6 @@ main {
   color: var(--muted-foreground);
 }
 
-.search-box {
-  position: relative;
-  padding-left: 44px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 18px;
-  height: 18px;
-  color: #9A9590;
-  pointer-events: none;
-}
-
 .search-btn-inline {
   display: inline-flex;
   align-items: center;
