@@ -3,26 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fiyatlı — A101 & Migros Fiyat Sorgulama</title>
+  <title>Fiyatlı Kolay — Ürün Arama</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <main>
       <section class="search-section">
-        <h1 class="app-title">Fiyatlı<span id="rotate-word"></span></h1>
+        <h1 class="app-title">
+          Fiyatlı <span id="rotate-word" class="badge">kolay</span>
+        </h1>
+
         <form id="search-form" class="search-box" autocomplete="off">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input
             type="text"
             id="query"
             placeholder="Ürün adı veya barkod ara..."
-            required
+            autocomplete="off"
           />
-          <button type="submit">Ara</button>
+          <button type="submit" id="search-submit" class="search-btn-inline">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            Ara
+          </button>
         </form>
 
         <button id="photo-search-btn" class="photo-search-btn" type="button">
-          Fotoğrafla ara
+          <span class="icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:26px;height:26px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          </span>
+          <span>Fotoğrafla ara</span>
         </button>
         <input
           type="file"
