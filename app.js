@@ -1,4 +1,3 @@
-const form = document.getElementById("search-form");
 const queryInput = document.getElementById("query");
 const searchBox = document.querySelector(".search-box");
 
@@ -522,7 +521,7 @@ async function runPhotoSearch(file) {
   }
 }
 
-form.addEventListener("submit", (e) => {
+document.getElementById("search-submit").addEventListener("click", (e) => {
   e.preventDefault();
   const q = queryInput.value.trim();
   if (!q) return;

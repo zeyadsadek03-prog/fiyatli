@@ -3,106 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fiyatlı — A101 & Migros Fiyat Sorgulama</title>
+  <title>Fiyatlı Kolay — Ürün Arama</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <main>
-      <section class="search-section">
-        <h1 class="app-title">Fiyatlı<span id="rotate-word"></span></h1>
-        <form id="search-form" class="search-box" autocomplete="off">
-          <input
-            type="text"
-            id="query"
-            placeholder="Ürün adı veya barkod ara..."
-            required
-          />
-          <button type="submit">Ara</button>
-        </form>
+  <div class="app">
+    <div class="logo">
+      Fiyatlı <span class="badge">kolay</span>
+    </div>
 
-        <button id="photo-search-btn" class="photo-search-btn" type="button">
-          Fotoğrafla ara
-        </button>
+    <div class="search-panel">
+      <div class="search-row">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input
-          type="file"
-          id="photo-input"
-          accept="image/*"
-          capture="environment"
-          style="display:none;"
+          type="text"
+          id="query"
+          placeholder="Ürün adı veya barkod ara..."
+          autocomplete="off"
         />
-
-        <div id="photo-status" class="status" style="display:none;"></div>
-
-        <section id="results" class="results" style="display:none;">
-          <div class="results-columns">
-            <div class="results-column" id="a101-column">
-              <div class="results-header">
-                <h2 id="a101-count"></h2>
-                <span class="store-badge a101-badge">A101</span>
-              </div>
-              <div id="a101-list" class="results-list"></div>
-              <div id="a101-error" class="column-error" style="display:none;"></div>
-            </div>
-            <div class="results-column" id="migros-column">
-              <div class="results-header">
-                <h2 id="migros-count"></h2>
-                <span class="store-badge migros-badge">Migros</span>
-              </div>
-              <div id="migros-list" class="results-list"></div>
-              <div id="migros-error" class="column-error" style="display:none;"></div>
-            </div>
-          </div>
-        </section>
-
-        <div id="loading-state" class="results-list" style="display:none;">
-          <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div>
-                <div class="skeleton-line long"></div>
-                <div class="skeleton-line medium" style="margin-top:6px;"></div>
-              </div>
-              <div class="skeleton-price"></div>
-            </div>
-          </div>
-          <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div>
-                <div class="skeleton-line long"></div>
-                <div class="skeleton-line medium" style="margin-top:6px;"></div>
-              </div>
-              <div class="skeleton-price"></div>
-            </div>
-          </div>
-          <div class="skeleton-card">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div>
-                <div class="skeleton-line long"></div>
-                <div class="skeleton-line medium" style="margin-top:6px;"></div>
-              </div>
-              <div class="skeleton-price"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="empty-state" class="no-results" style="display:none;">
-          <div class="no-results-icon">🔍</div>
-          <p class="no-results-title">Sonuç bulunamadı</p>
-          <p class="no-results-msg"></p>
-        </div>
-
-        <button id="load-more-btn" class="load-more-btn" type="button" style="display:none;">
-          Daha fazla göster
+        <button id="search-submit" class="search-btn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Ara
         </button>
+      </div>
 
-        <section id="error-box" class="error-box" style="display:none;">
-          <p id="error-text"></p>
-        </section>
-      </section>
-    </main>
+      <button id="photo-search-btn" class="photo-btn" type="button">
+        <span class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        </span>
+        <span>Fotoğrafla ara</span>
+      </button>
+      <input
+        type="file"
+        id="photo-input"
+        accept="image/*"
+        capture="environment"
+        style="display:none;"
+      />
+    </div>
+
+    <div id="photo-status" class="status" style="display:none;"></div>
+
+    <section id="results" class="results" style="display:none;">
+      <div class="results-columns">
+        <div class="results-column" id="a101-column">
+          <div class="results-header">
+            <h2 id="a101-count"></h2>
+            <span class="store-badge a101-badge">A101</span>
+          </div>
+          <div id="a101-list" class="results-list"></div>
+          <div id="a101-error" class="column-error" style="display:none;"></div>
+        </div>
+        <div class="results-column" id="migros-column">
+          <div class="results-header">
+            <h2 id="migros-count"></h2>
+            <span class="store-badge migros-badge">Migros</span>
+          </div>
+          <div id="migros-list" class="results-list"></div>
+          <div id="migros-error" class="column-error" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="loading-state" class="results-list" style="display:none;">
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium" style="margin-top:6px;"></div>
+          </div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium" style="margin-top:6px;"></div>
+          </div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div>
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium" style="margin-top:6px;"></div>
+          </div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="empty-state" class="no-results" style="display:none;">
+      <div class="no-results-icon">🔍</div>
+      <p class="no-results-title">Sonuç bulunamadı</p>
+      <p class="no-results-msg"></p>
+    </div>
+
+    <button id="load-more-btn" class="load-more-btn" type="button" style="display:none;">
+      Daha fazla göster
+    </button>
+
+    <section id="error-box" class="error-box" style="display:none;">
+      <p id="error-text"></p>
+    </section>
   </div>
 
   <script src="app.js"></script>
