@@ -19,6 +19,8 @@
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --radius-panel: 28px;
+  --radius-field: 18px;
 }
 
 * {
@@ -57,15 +59,44 @@ body {
 #rotate-word {
   display: inline-flex;
   overflow: hidden;
-  background: #22c55e;
+  background: linear-gradient(180deg, #29b768 0%, #22c55e 100%);
   color: white;
-  padding: 3px 10px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 20px;
   font-weight: 700;
   vertical-align: middle;
-  line-height: 1.4;
-  margin-left: 6px;
+  line-height: 1.2;
+  margin-left: 8px;
+  box-shadow: 0 6px 14px -4px rgba(34, 165, 89, 0.45);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 42px;
+  color: var(--foreground);
+  letter-spacing: -0.5px;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 32px;
+  }
+  #rotate-word {
+    font-size: 16px;
+    padding: 6px 12px;
+  }
 }
 
 main {
@@ -126,6 +157,82 @@ main {
 
 #query::placeholder {
   color: var(--muted-foreground);
+}
+
+.search-box {
+  position: relative;
+  padding-left: 44px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #9A9590;
+  pointer-events: none;
+}
+
+.search-btn-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(180deg, #29b768 0%, #22a559 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 14px -4px rgba(34, 165, 89, 0.45);
+  font-family: inherit;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.search-btn-inline:hover {
+  filter: brightness(1.05);
+}
+
+.search-btn-inline:active {
+  transform: translateY(1px);
+}
+
+.photo-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.photo-search-btn .icon-circle {
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-search-btn span:last-child {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    flex-wrap: wrap;
+    padding-left: 16px;
+  }
+  #query {
+    width: 100%;
+  }
+  .search-btn-inline {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
 }
 
 button[type="submit"] {
